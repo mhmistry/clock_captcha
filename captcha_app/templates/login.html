@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+</head>
+<body>
+
+    <h2>Sign In</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username"><br><br>
+
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password"><br><br>
+
+        <label>
+            <input type="checkbox" id="captcha-checkbox"> I'm not a robot
+        </label><br><br>
+
+        <button type="submit" id="login-button" disabled>Login</button>
+    </form>
+
+    <!-- Overlay Background -->
+    <div id="overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);"></div>
+
+    <!-- CAPTCHA Pop-up -->
+    <div id="captcha-popup" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; text-align: center; border: 1px solid black;">
+        <h3>Complete the CAPTCHA</h3>
+
+        <!-- Clock Canvas -->
+        <canvas id="captcha-clock" width="200" height="200" style="border: 1px solid black;"></canvas>
+
+        <!-- Time to Set -->
+        <p id="target-time">Set the time to:</p>
+
+        <button onclick="validateCaptcha()">Submit</button>
+        <button onclick="refreshCaptcha()">Refresh</button>
+        <button onclick="closeCaptcha()">Cancel</button>
+
+        <p id="captcha-error" style="color: red;"></p>
+    </div>
+
+    <script>
+        let targetHour, targetMinute;
+        let selectedHour = 0, selectedMinute = 0;
+        let draggingHand = null;
+        let canvas, ctx;
+    
+        document.getElementById("captcha-checkbox").addEventListener("change", function() {
+            if (this.checked) {
+                openCaptcha();
+            }
+        });
+    
+        function openCaptcha() {
+            generateTargetTime();
+            drawClock();
+            document.getElementById("captcha-popup").style.display = "block";
+            document.getElementById("overlay").style.display = "block";
+        }
+    
+        function closeCaptcha() {
+            document.getElementById("captcha-popup").style.display = "none";
+            document.getElementById("overlay").style.display = "none";
+            document.getElementById("captcha-checkbox").checked = false;
+        }
+    
+        function generateTargetTime() {
+            targetHour = Math.floor(Math.random() * 12); 
+            targetMinute = Math.floor(Math.random() * 12) * 5; // Ensuring minutes are multiples of 5
+            let timeText = `${targetHour}:${targetMinute.toString().padStart(2, '0')}`;
+            applyDistortion(timeText);
+        }
+    
+        function applyDistortion(timeText) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 200;
+            canvas.height = 40;
+            ctx.font = "24px Arial";
+            ctx.fillStyle = "black";
+            
+            // Apply random distortions and noise to only the time part
+            let xOffset = Math.random() * 10;
+            let yOffset = Math.random() * 10;
+            for (let i = 0; i < timeText.length; i++) {
+                ctx.fillText(timeText[i], 10 + i * 30 + xOffset, 30 + yOffset);
+                xOffset = Math.random() * 5;
+                yOffset = Math.random() * 5;
+            }
+
+            // Add more intense random lines as noise
+            for (let i = 0; i < 15; i++) {
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.lineTo(Math.random() * canvas.width, Math.random() * canvas.height);
+                ctx.strokeStyle = "rgba(0,0,0,0.4)"; // Stronger noise lines
+                ctx.lineWidth = Math.random() * 2;
+                ctx.stroke();
+            }
+
+            // Set the distorted time as the image source
+            document.getElementById("target-time").innerHTML = `Set the time to: <img src="${canvas.toDataURL()}" />`;
+        }
+    
+        function drawClock() {
+            canvas = document.getElementById("captcha-clock");
+            ctx = canvas.getContext("2d");
+    
+            if (!ctx) {
+                console.error("Canvas context not found!");
+                return;
+            }
+    
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+            // Draw clock face
+            ctx.beginPath();
+            ctx.arc(100, 100, 90, 0, Math.PI * 2);
+            ctx.stroke();
+    
+            // Draw numbers
+            for (let i = 1; i <= 12; i++) {
+                let angle = (i * 30 - 90) * (Math.PI / 180);
+                let x = 100 + Math.cos(angle) * 75;
+                let y = 100 + Math.sin(angle) * 75;
+                ctx.font = "16px Arial";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(i, x, y);
+            }
+    
+            drawHand(selectedHour * 30, 50, "black", 6, "hour");
+            drawHand(selectedMinute * 6, 70, "red", 3, "minute");
+        }
+    
+        function drawHand(angle, length, color, width, handType) {
+            let radian = (angle - 90) * (Math.PI / 180);
+            let x = 100 + Math.cos(radian) * length;
+            let y = 100 + Math.sin(radian) * length;
+    
+            ctx.beginPath();
+            ctx.moveTo(100, 100);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.stroke();
+    
+            if (handType === "hour") {
+                hourHandPosition = { x, y, angle };
+            } else {
+                minuteHandPosition = { x, y, angle };
+            }
+        }
+    
+        // Mouse event handlers for dragging clock hands
+        function onMouseDown(event) {
+            let rect = canvas.getBoundingClientRect();
+            let mouseX = event.clientX - rect.left;
+            let mouseY = event.clientY - rect.top;
+    
+            if (isNear(mouseX, mouseY, hourHandPosition)) {
+                draggingHand = "hour";
+            } else if (isNear(mouseX, mouseY, minuteHandPosition)) {
+                draggingHand = "minute";
+            }
+        }
+    
+        function onMouseMove(event) {
+            if (!draggingHand) return;
+    
+            let rect = canvas.getBoundingClientRect();
+            let mouseX = event.clientX - rect.left - 100;
+            let mouseY = event.clientY - rect.top - 100;
+            let angle = Math.atan2(mouseY, mouseX) * (180 / Math.PI) + 90;
+    
+            if (angle < 0) angle += 360;
+    
+            if (draggingHand === "hour") {
+                selectedHour = Math.round(angle / 30) % 12;
+            } else if (draggingHand === "minute") {
+                selectedMinute = Math.round(angle / 6 / 5) * 5 % 60;
+            }
+    
+            drawClock();
+        }
+    
+        function onMouseUp() {
+            draggingHand = null;
+        }
+    
+        function isNear(mouseX, mouseY, handPosition) {
+            let dx = mouseX - handPosition.x;
+            let dy = mouseY - handPosition.y;
+            return Math.sqrt(dx * dx + dy * dy) < 10;
+        }
+    
+        function validateCaptcha() {
+            if (selectedHour === targetHour && selectedMinute === targetMinute) {
+                // Custom success message
+                document.getElementById("captcha-error").innerText = "✔ CAPTCHA Verified!";
+                document.getElementById("login-button").disabled = false;
+                closeCaptcha();
+    
+                // Redirect to the signed-in page
+                window.location.href = "{% url 'signed_in' %}";
+            } else {
+                document.getElementById("captcha-error").innerText = "❌ Incorrect time! Try again.";
+            }
+        }
+    
+        function refreshCaptcha() {
+            generateTargetTime();
+            drawClock();
+        }
+    
+        // Attach event listeners to the canvas
+        canvas = document.getElementById("captcha-clock");
+        canvas.addEventListener("mousedown", onMouseDown);
+        canvas.addEventListener("mousemove", onMouseMove);
+        canvas.addEventListener("mouseup", onMouseUp);
+    </script>     
+
+</body>
+</html>
