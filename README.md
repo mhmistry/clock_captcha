@@ -10,30 +10,22 @@ A web-based CAPTCHA system using a draggable analog clock to verify human users.
 - Refresh Option: Users can generate a new target time without reloading the page.
 
 ## Installation
-1. Clone the repository
-<br>
-    git clone https://github.com/mhmistry/clock_captcha.git
-    <br>
+1. Clone the repository  
+    git clone https://github.com/mhmistry/clock_captcha.git  
     cd clock_captcha
 
-2. Create a virtual environment (optional but recommended)
-<br>
-    python -m venv venv
-    <br>
-    venv\Scripts\activate # Windows
-    <br>
+2. Create a virtual environment (optional but recommended)  
+    python -m venv venv  
+    venv\Scripts\activate # Windows  
     source venv/bin/activate # macOS/Linux
 
-3. Install dependencies
-<br>
-    pip install django
+3. Install dependencie  
+    spip install django
 
-4. Run the server
-<br>
+4. Run the server  
     python manage.py runserver
 
-5. Open your browser and go to:
-<br>
+5. Open your browser and go to:  
     http://127.0.0.1:8000/
 
 
@@ -46,31 +38,18 @@ A web-based CAPTCHA system using a draggable analog clock to verify human users.
 
 ## Folder Structure
 clock_captcha/
-<br>
 ├── captcha_app/
-<br>
 │ ├── templates/
-<br>
 │ │ ├── login.html
-<br>
 │ │ └── signed_in.html
-<br>
 │ ├── views.py
-<br>
 │ ├── urls.py
-<br>
 │ └── ...
-<br>
 ├── captcha_project/
-<br>
 │ ├── settings.py
-<br>
 │ ├── urls.py
-<br>
 │ └── ...
-<br>
 ├── manage.py
-<br>
 └── README.md
 
 ## Tech Stack
