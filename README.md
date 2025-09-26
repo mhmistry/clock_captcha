@@ -28,29 +28,12 @@ A web-based CAPTCHA system using a draggable analog clock to verify human users.
 5. Open your browser and go to:  
     http://127.0.0.1:8000/
 
-
 ## Usage
 1. Enter a username and password.
 2. Check the "I'm not a robot" box to open the CAPTCHA.
 3. Drag the clock hands to match the distorted target time.
 4. Click Submit to verify.
 5. Upon success, you are redirected to the signed-in page.
-
-## Folder Structure
-clock_captcha/  
-├── captcha_app/  
-│ ├── templates/  
-│ │ ├── login.html  
-│ │ └── signed_in.html  
-│ ├── views.py  
-│ ├── urls.py  
-│ └── ...  
-├── captcha_project/  
-│ ├── settings.py  
-│ ├── urls.py  
-│ └── ...  
-├── manage.py  
-└── README.md
 
 ## Tech Stack
 - Backend: Django
