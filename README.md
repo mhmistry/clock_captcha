@@ -37,19 +37,19 @@ A web-based CAPTCHA system using a draggable analog clock to verify human users.
 5. Upon success, you are redirected to the signed-in page.
 
 ## Folder Structure
-clock_captcha/
-├── captcha_app/
-│ ├── templates/
-│ │ ├── login.html
-│ │ └── signed_in.html
-│ ├── views.py
-│ ├── urls.py
-│ └── ...
-├── captcha_project/
-│ ├── settings.py
-│ ├── urls.py
-│ └── ...
-├── manage.py
+clock_captcha/  
+├── captcha_app/  
+│ ├── templates/  
+│ │ ├── login.html  
+│ │ └── signed_in.html  
+│ ├── views.py  
+│ ├── urls.py  
+│ └── ...  
+├── captcha_project/  
+│ ├── settings.py  
+│ ├── urls.py  
+│ └── ...  
+├── manage.py  
 └── README.md
 
 ## Tech Stack
