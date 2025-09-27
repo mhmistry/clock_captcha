@@ -11,18 +11,22 @@ A web-based CAPTCHA system using a draggable analog clock to verify human users.
 
 ## Installation
 1. Clone the repository  
+    ```bash
     git clone https://github.com/mhmistry/clock_captcha.git  
     cd clock_captcha
 
 2. Create a virtual environment (optional but recommended)  
+    ```bash
     python -m venv venv  
     venv\Scripts\activate # Windows  
     source venv/bin/activate # macOS/Linux
 
-3. Install dependencie  
+3. Install dependencies  
+    ```bash
     spip install django
 
 4. Run the server  
+    ```bash
     python manage.py runserver
 
 5. Open your browser and go to:  
